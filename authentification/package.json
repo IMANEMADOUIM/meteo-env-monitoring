@@ -9,7 +9,11 @@
     "prettier:fix": "prettier --write ./src/**/*.ts",
     "start:dev": "nodemon src/index.ts",
     "start": "echo starting prod server",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "preset": "ts-jest"
   },
   "keywords": [],
   "author": "Imane Mad",
@@ -23,6 +27,7 @@
   "devDependencies": {
     "@types/express": "^5.0.1",
     "@types/node": "^22.13.13",
+    "@types/supertest": "^6.0.3",
     "eslint": "^8.57.1",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-airbnb-typescript-prettier": "^5.0.0",
@@ -48,5 +53,4 @@
       "pre-commit": "lint-staged"
     }
   }
-
 }
