@@ -1,0 +1,52 @@
+{
+  "name": "authentification",
+  "version": "1.0.0",
+  "description": "Authentification microservice for our météo environnemental monitoring app",
+  "main": "index.ts",
+  "scripts": {
+    "lint": "eslint src/**/*.ts",
+    "prettier": "prettier --write ./src/**/*.ts",
+    "prettier:fix": "echo fixing Prettier formatting",
+    "start:dev": "nodemon src/index.ts",
+    "start": "echo starting prod server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Imane Mad",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "express": "^4.21.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.13.13",
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-airbnb-typescript-prettier": "^5.0.0",
+    "eslint-plugin-import": "^2.31.0",
+    "husky": "^9.1.7",
+    "jest": "^29.7.0",
+    "lint-staged": "^15.5.0",
+    "nodemon": "^3.1.9",
+    "prettier": "^2.8.8",
+    "supertest": "^7.1.0",
+    "ts-jest": "^29.3.0",
+    "typescript": "^5.8.2"
+  },
+  "lint-staged": {
+    "src/**/*.ts": [
+      "eslint .",
+      "prettier --write .",
+      "git add"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  }
+
+}
