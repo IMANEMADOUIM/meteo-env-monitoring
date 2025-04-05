@@ -1,16 +1,27 @@
 import express, { Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 
+export const SIGNUP_ROUTE = '/api/authentication/signup';
+
 const signUpRouter = express.Router();
 
 signUpRouter.post(
-  '/api/authentication/signup',
+  SIGNUP_ROUTE,
   [
     body('email').isEmail().withMessage('Email must be in a valid format'),
-    body('password').isLength( { min:8, max:32 }).withMessage('Password must be between 8 and 32 characters'),
-    body('password').matches( /^(.*[a-z].*)$/ ).withMessage('Password must contain at least one lowercase letter'),
-    body('password').matches( /^(.*[A-Z].*)$/ ).withMessage('Password must contain at least one uppercase letter'),
-    body('password').matches( /^(.*\d.*)$/ ).withMessage('Password must contain at least one digit')
+    body('password')
+      .trim()
+      .isLength({ min: 8, max: 32 })
+      .withMessage('Password must be between 8 and 32 characters'),
+    body('password')
+      .matches(/^(.*[a-z].*)$/)
+      .withMessage('Password must contain at least one lowercase letter'),
+    body('password')
+      .matches(/^(.*[A-Z].*)$/)
+      .withMessage('Password must contain at least one uppercase letter'),
+    body('password')
+      .matches(/^(.*\d.*)$/)
+      .withMessage('Password must contain at least one digit'),
   ],
   (req: Request, res: Response) => {
     const errors = validationResult(req);
@@ -21,5 +32,9 @@ signUpRouter.post(
     res.send({});
   }
 );
+
+signUpRouter.all(SIGNUP_ROUTE, (req, res) => {
+  res.status(405).send({});
+});
 
 export default signUpRouter;
