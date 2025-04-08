@@ -1,46 +1,54 @@
 {
   "name": "authentification",
   "version": "1.0.0",
-  "description": "Authentification microservice for our météo environnemental monitoring app",
+  "description": "Authentication microservice for our météo environnemental monitoring app",
   "main": "index.ts",
   "scripts": {
     "lint": "eslint .",
     "prettier": "prettier --check .",
     "prettier:fix": "prettier --write .",
     "start:dev": "nodemon src/index.ts",
-    "test": "jest",
+    "test": "jest ",
     "test:watch": "jest --watchAll --no-cache"
   },
   "jest": {
     "testEnvironment": "node",
-    "preset": "ts-jest"
+    "preset": "ts-jest",
+    "setupFilesAfterEnv": [
+      "./src/test-utils/setup-after-env.ts"
+    ],
+    "globalTeardown": "./src/test-utils/global-teardown.ts",
+    "detectOpenHandles": true,
+    "forceExit": true,
+    "testTimeout": 60000,
+    "verbose": true
   },
   "keywords": [],
   "author": "Imane Mad",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.20.3",
-    "express": "^4.21.2",
-    "express-validator": "^7.2.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.2"
   },
   "devDependencies": {
     "@types/express": "^5.0.1",
     "@types/jest": "^29.5.14",
+    "@types/mongoose": "^5.11.97",
     "@types/node": "^22.13.13",
     "@types/supertest": "^6.0.3",
     "eslint": "^8.57.1",
-    "eslint-config-airbnb": "^19.0.4",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-airbnb-typescript": "^18.0.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^5.2.0",
+    "express": "^5.1.0",
+    "express-validator": "^7.2.1",
     "husky": "^9.1.7",
     "jest": "^29.7.0",
     "lint-staged": "^15.5.0",
+    "mongodb-memory-server": "^10.1.4",
     "nodemon": "^3.1.9",
     "prettier": "^2.8.8",
     "supertest": "^7.1.0",

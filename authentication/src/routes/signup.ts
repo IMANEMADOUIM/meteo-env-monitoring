@@ -1,9 +1,14 @@
 import express, { Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
+import { User } from '../models';
+import mongoose from 'mongoose';
 
 export const SIGNUP_ROUTE = '/api/authentication/signup';
 
 const signUpRouter = express.Router();
+
+// Add JSON body parser middleware
+signUpRouter.use(express.json());
 
 signUpRouter.post(
   SIGNUP_ROUTE,
@@ -27,22 +32,45 @@ signUpRouter.post(
       .withMessage('Password must contain at least one digit'),
     body('password').escape(),
   ],
-  (req: Request, res: Response) => {
-    const errors = validationResult(req);
+  async (req: Request, res: Response) =>  {
+     const errors = validationResult(req);
+    
     if (!errors.isEmpty()) {
-      res.sendStatus(422);
+      res.sendStatus(422).json({});
+      return;
     }
 
     if (/.+@[A-Z]/g.test(req.body.email)) {
-      res.sendStatus(422);
+       res.sendStatus(422);
+       return;
     }
 
     if (/[><'(\/)]/g.test(req.body.password)) {
-      res.sendStatus(422);
-    }
+    res.sendStatus(422);
+    return;
+    };
 
-    res.send({ email: req.body.email });
+    const { email, password } = req.body;
+
+    try {
+      // Check for existing user
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+           res.sendStatus(422).json({ 
+          error: 'Email already in use' 
+        });
+      }
+
+    const newUser =  await User.create({ email, password });  
+    
+    res.status(201).send({  email: newUser.email });
+  }catch (error) {
+    console.error('Signup error:', error);
+       res.status(500).json({ 
+      error: 'Internal server error' 
+    });
   }
+}
 );
 
 export default signUpRouter;
