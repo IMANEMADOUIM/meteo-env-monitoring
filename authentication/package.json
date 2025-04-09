@@ -28,6 +28,7 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.20.3",
+    "mongoose": "^8.13.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.2"
   },
@@ -37,11 +38,15 @@
     "@types/mongoose": "^5.11.97",
     "@types/node": "^22.13.13",
     "@types/supertest": "^6.0.3",
+    "@typescript-eslint/eslint-plugin": "^8.29.1",
+    "@typescript-eslint/parser": "^8.29.1",
     "eslint": "^8.57.1",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-airbnb-typescript": "^18.0.0",
+    "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-prettier": "^5.2.6",
     "eslint-plugin-react": "^7.37.5",
     "express": "^5.1.0",
     "express-validator": "^7.2.1",
@@ -50,7 +55,7 @@
     "lint-staged": "^15.5.0",
     "mongodb-memory-server": "^10.1.4",
     "nodemon": "^3.1.9",
-    "prettier": "^2.8.8",
+    "prettier": "^3.0.0",
     "supertest": "^7.1.0",
     "ts-jest": "^29.3.0",
     "typescript": "^5.8.2"

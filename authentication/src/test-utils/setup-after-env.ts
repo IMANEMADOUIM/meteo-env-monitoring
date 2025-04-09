@@ -12,12 +12,12 @@ beforeAll(async () => {
     mongoMemoryServer = await MongoMemoryServer.create({
       binary: {
         version: '6.0.8',
-        downloadDir: './.cache/mongodb-memory-server'
+        downloadDir: './.cache/mongodb-memory-server',
       },
       instance: {
         dbName: 'testdb',
-        port: 27017 // Port fixe pour éviter les conflits
-      }
+        port: 27017, // Port fixe pour éviter les conflits
+      },
     });
 
     // Connexion avec paramètres optimisés
@@ -26,7 +26,7 @@ beforeAll(async () => {
       connectTimeoutMS: 30000,
       socketTimeoutMS: 45000,
       serverSelectionTimeoutMS: 30000,
-      maxPoolSize: 10 // Limite le nombre de connexions
+      maxPoolSize: 10, // Limite le nombre de connexions
     });
   } catch (err) {
     console.error('❌ Erreur de connexion MongoDB:', err);
@@ -47,9 +47,12 @@ beforeEach(async () => {
       try {
         await collection.deleteMany({});
       } catch (err) {
-        console.error(`Erreur de nettoyage de la collection ${collection.collectionName}:`, err);
+        console.error(
+          `Erreur de nettoyage de la collection ${collection.collectionName}:`,
+          err,
+        );
       }
-    })
+    }),
   );
 });
 
@@ -73,6 +76,6 @@ async function globalTeardown() {
     console.error('❌ Erreur de nettoyage global:', err);
   } finally {
     // Force la fermeture des handles restants
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 }

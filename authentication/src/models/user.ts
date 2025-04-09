@@ -1,21 +1,23 @@
 import mongoose from 'mongoose';
 
 export type UserDocument = mongoose.Document & {
-  email: string ;
+  email: string;
   password: string;
-}
+};
 
-export interface UserModel extends mongoose.Model< UserDocument > {}
+export interface UserModel
+  extends mongoose.Model<UserDocument>,
+    Promise<void> {}
 
 const userSchema = new mongoose.Schema({
   email: {
     type: String,
-    required: true
+    required: true,
   },
   password: {
     type: String,
-    required: true
-  }
+    required: true,
+  },
 });
 
 const User = mongoose.model<UserDocument, UserModel>('User', userSchema);

@@ -1,10 +1,10 @@
 module.exports = {
   extends: [
-    'airbnb-typescript/base',
+    'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
-    'prettier',
-    'prettier/@typescript-eslint',
+    'plugin:prettier/recommended',
   ],
+  ignorePatterns: ['coverage/', '*.js'],
   parser: '@typescript-eslint/parser',
   plugins: ['import', 'prettier', '@typescript-eslint'],
   parserOptions: {
@@ -17,6 +17,6 @@ module.exports = {
       { avoidEscape: true, allowTemplateLiterals: true },
     ],
     'import/prefer-default-export': 'off',
-    'prettier/prettier': 'error',
+    '@typescript-eslint/no-empty-interface': 'off',
   },
 };

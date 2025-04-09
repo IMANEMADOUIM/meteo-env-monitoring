@@ -111,8 +111,10 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "rootDir": "./",
-    "outDir": "./build" ,/* Skip type checking all .d.ts files. */
+    "outDir": "./build" /* Skip type checking all .d.ts files. */,
     "types": ["jest", "node"],
     "typeRoots": ["./node_modules/@types"]
-  }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "coverage"]
 }
