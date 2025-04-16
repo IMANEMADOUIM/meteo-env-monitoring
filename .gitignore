@@ -122,3 +122,4 @@ dist
 
 # IDE specific
 .vscode/
+.cache/
