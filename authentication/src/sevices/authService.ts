@@ -1,11 +1,14 @@
 import { JWT_REFRESH_SECRET, JWT_SECRET } from "../constants/env";
+import { CONFLICT, UNAUTHORIZED } from "../constants/http";
 import VerificationCodeType from "../constants/verificationCodeType";
 import SessionModel from "../models/sessionModel";
 import UserModel from "../models/userModel";
 import VerificationCodeModel from "../models/verificationCode.model";
+import appAssert from "../utils/appAssert";
 import AppError from "../utils/appError";
 import { oneYearFromNow } from "../utils/date";
 import jwt from "jsonwebtoken"; 
+
 
 export type CreateAccountParams = {
   username: string;
@@ -18,9 +21,7 @@ export const createAccount = async (data: CreateAccountParams) => {
   const  existingUser = await UserModel.exists({
     email: data.email,
   });
-  if (existingUser){
-    throw new AppError("User already exists", 400);
-  }
+  appAssert(!existingUser, CONFLICT, "Email already in use");
 
   //create user
   const user = await UserModel.create({
@@ -66,7 +67,61 @@ export const createAccount = async (data: CreateAccountParams) => {
 
   // return user & tokens
   return{
-    user,
+    user: user.omitPassword(),
+    accessToken,
+    refreshToken,
+  };
+};
+
+export type LoginParams = {
+  email: string;
+  password: string;
+  userAgent?: string;
+};
+
+export const loginUser = async ({email, password, userAgent }: LoginParams ) => {
+  // get the user by email
+  const user = await UserModel.findOne({email });
+  appAssert(user, UNAUTHORIZED, "Invalid email or password");
+
+  // validate password from the request 
+  const isValid =  await user.comparePassword(password);
+  appAssert(isValid, UNAUTHORIZED, "Invalid email or password");
+
+  const userId = user._id;
+  // create a session
+  const session = await SessionModel.create({
+    userId,
+    userAgent,
+  });
+
+  const sessionInfo = {
+    sessionId: session._id,
+  }
+  // sign access token & refresh token
+  const refreshToken = jwt.sign(
+    sessionInfo,
+    JWT_REFRESH_SECRET,
+    {
+     audience:["user"],
+     expiresIn: "30d",
+    }
+   );
+ 
+   const accessToken = jwt.sign(
+     { 
+      ...sessionInfo,
+       userId: user._id,
+     },
+     JWT_SECRET,
+     {
+      audience:["user"],
+      expiresIn: "15m",
+     }
+    );
+  // return user & tokens
+  return{
+    user: user.omitPassword(),
     accessToken,
     refreshToken,
   };

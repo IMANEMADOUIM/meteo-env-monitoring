@@ -1,21 +1,22 @@
 import mongoose, { Document, Schema } from "mongoose";
 import validator from "validator";
 import { compareValue, hashValue } from "../utils/bcypt";
+import roleType from "../constants/role";
 
 // Interface pour typer un document utilisateur
  export interface UserDocument extends mongoose.Document {
   username: string;
   email: string;
   password: string;
+  role : string;
   createdAt: Date;
-  updateAt: Date;
+  updatedAt: Date;
   isVerified: boolean;
+  __v?: number;
   comparePassword(val:string): Promise<boolean>;
-  otp?: string;
-  otpExpire?: Date;
-  resetPasswordOTP?: string;
-  resetPasswordOTPExpires?: Date;
-
+  omitPassword(): Pick< UserDocument,
+  "_id" | "email" | "isVerified" | "createdAt" | "updatedAt" | "__v"
+   >;
 }
 
 const userSchema = new mongoose.Schema<UserDocument>(
@@ -27,6 +28,7 @@ const userSchema = new mongoose.Schema<UserDocument>(
       minlength: 3,
       maxlength: 30,
       index: true,
+      match: /^[a-zA-Z0-9_]+$/,   
     },
 
     email: {
@@ -44,10 +46,11 @@ const userSchema = new mongoose.Schema<UserDocument>(
       required: [true, "Please provide a password"],
       minlength: 6,
       maxlength: 255,
-      select: false,
+      select: true,
     },
-   
 
+    
+  
     isVerified: {
       type: Boolean,
       default: false,
@@ -61,9 +64,9 @@ const userSchema = new mongoose.Schema<UserDocument>(
 
 userSchema.pre("save", async function( next) {
   // Vérification des champs requis
-  if (!this.username || !this.email || !this.password || !this.isVerified) {
-    return next(new Error("All fields are required"));
-  }
+  // if (!this.username || !this.email || !this.password || !this.isVerified) {
+  //   return next(new Error("All fields are required"));
+  // }
   
   if (!this.isModified("password")){
     return next();
@@ -75,7 +78,13 @@ userSchema.pre("save", async function( next) {
 
 userSchema.methods.comparePassword = async function (val: string){
   return compareValue(val, this.password);
-}
-const UserModel = mongoose.model<UserDocument>("User", userSchema);
+};
 
+userSchema.methods.omitPassword = function (){
+  const user = this.toObject();
+  delete user.password;
+  return user;
+};
+
+const UserModel = mongoose.model<UserDocument>("User", userSchema);
 export default UserModel;

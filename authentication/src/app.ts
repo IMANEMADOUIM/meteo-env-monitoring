@@ -7,7 +7,6 @@ import errorHandler from './middlewares/errorHandler';
 import { NOT_FOUND, OK } from './constants/http';
 import AppError from './utils/appError';
 import errorController from './controllers/errorController';
-import globalErrorHandler from './middlewares/globalErrorHandler';
 import authRoutes from './routes/authRoute';
 
 
@@ -23,20 +22,18 @@ app.use(
   })
 );
 app.use(cookieParser());
-app.use(errorHandler);
-
-app.get("/", (req, res, next) => {
-  try {
-    res.status(OK).json({ status: "healthy" });
-  } catch (error) {
-    next(error); // Passe l'erreur au middleware d'erreur
-  }
-});
-
 
 // auth routes 
 app.use("/api/auth", authRoutes);
 
-app.use(globalErrorHandler);
+app.get("/api/", async (req, res, next) => {
+  try {
+    throw new Error("This is a test error");
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.use(errorHandler);
 
 export  default app;

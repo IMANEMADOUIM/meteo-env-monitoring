@@ -1,23 +1,19 @@
+import AppErrorCode from "../constants/appErrorCode";
 import { HttpStatusCode } from "../constants/http";
 
 class AppError extends Error {
   statusCode: number;
-  status: string;
+  // status: string;
+  errorCode?: AppErrorCode
 
-  constructor(message: string, statusCode: HttpStatusCode, errorCode?: string) {
+  constructor(statusCode: HttpStatusCode,message: string,  errorCode?: AppErrorCode) {
     super(message);
     this.statusCode = statusCode;
-    this.status = `${statusCode}`.startsWith("4") ? "fail" : "error";
-   
+    // this.status = `${statusCode}`.startsWith("4") ? "fail" : "error";
+    this.errorCode = errorCode ;
     // Capture l'emplacement de l'erreur
-    Error.captureStackTrace(this, this.constructor);
+    // Error.captureStackTrace(this, this.constructor);
   }
 }
-
-new AppError(
- 'msg',
-  200
-
-)
 
 export default AppError;
