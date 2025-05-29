@@ -1,0 +1,97 @@
+{
+  "name": "authentification",
+  "version": "1.0.0",
+  "description": "Authentication microservice for our météo environnemental monitoring app",
+  "main": "index.ts",
+  "scripts": {
+    "lint": "eslint .",
+    "prettier": "prettier --check .",
+    "prettier:fix": "prettier --write .",
+    "start:dev": "ts-node-dev  --files src/index.ts",
+    "build": "tsc && cp ./package.json ./dist",
+    "start": "node dist/index.js",
+    "test": "jest ",
+    "test:watch": "jest --watchAll --no-cache"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "preset": "ts-jest",
+    "setupFilesAfterEnv": [
+      "./src/test-utils/setup-after-env.ts"
+    ],
+    "globalTeardown": "./src/test-utils/global-teardown.ts",
+    "detectOpenHandles": true,
+    "forceExit": true,
+    "testTimeout": 60000,
+    "verbose": true
+  },
+  "keywords": [],
+  "author": "Imane Mad",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.2",
+    "body-parser": "^1.20.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "date-fns-tz": "^3.2.0",
+    "firebase": "^11.6.1",
+    "firebase-admin": "^13.3.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.13.2",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "qrcode": "^1.5.4",
+    "resend": "^4.5.1",
+    "session": "^0.1.0",
+    "speakeasy": "^2.0.0",
+    "ts-node": "^10.9.2",
+    "winston": "^3.17.0",
+    "winston-daily-rotate-file": "^5.0.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/cookie-parser": "^1.4.8",
+    "@types/cors": "^2.8.17",
+    "@types/dotenv": "^8.2.3",
+    "@types/express": "^5.0.1",
+    "@types/jest": "^29.5.14",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/mongoose": "^5.11.97",
+    "@types/multer": "^1.4.12",
+    "@types/node": "^22.13.13",
+    "@types/passport": "^1.0.17",
+    "@types/passport-jwt": "^4.0.1",
+    "@types/qrcode": "^1.5.5",
+    "@types/speakeasy": "^2.0.10",
+    "@types/supertest": "^6.0.3",
+    "@types/validator": "^13.12.3",
+    "@types/winston": "^2.4.4",
+    "dotenv": "^16.5.0",
+    "eslint": "^8.57.1",
+    "express": "^5.1.0",
+    "express-validator": "^7.2.1",
+    "husky": "^9.1.7",
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.9",
+    "prettier": "^3.0.0",
+    "supertest": "^7.1.0",
+    "ts-jest": "^29.3.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.8.3"
+  },
+  "lint-staged": {
+    "src/**/*.ts": [
+      "npm run prettier:fix",
+      "npm run lint",
+      "npm run test ",
+      "git add"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  }
+}
