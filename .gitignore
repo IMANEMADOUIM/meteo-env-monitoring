@@ -122,4 +122,4 @@ dist
 
 # IDE specific
 .vscode/
-.cache/
+.cache/backend/authentication/src/config/serviceAccountKey.json
