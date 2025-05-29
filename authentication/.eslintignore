@@ -1,6 +1,0 @@
-node_modules/
-build/
-dist/
-package-lock.json/
-coverage/
-.eslintrc.js/
