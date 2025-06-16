@@ -12,6 +12,7 @@ export interface RegisterDto {
   confirmPassword: string;
   role?: Audience;
   userAgent?: string;
+  ipAddress?: string;
 }
 
 export interface LoginDto {

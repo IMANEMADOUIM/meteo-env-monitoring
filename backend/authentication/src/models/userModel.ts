@@ -21,6 +21,7 @@ export interface UserPreferences {
   role : Audience ;
   isEmailVerified: boolean;
   userPreferences?: UserPreferences;
+  emailVerifiedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
   __v?: number;
