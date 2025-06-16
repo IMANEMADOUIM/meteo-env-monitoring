@@ -27,7 +27,7 @@ export class AuthService {
   let location: string | undefined;
   if (ipAddress) {
     try {
-      const geo = lookup(ipAddress);
+      const geo = await lookup(ipAddress);
       if (geo && geo.city && geo.country_name) {
         location = `${geo.city}, ${geo.country_name}`;
       } else if (geo && geo.country_name) {
@@ -435,6 +435,59 @@ public async getUserProfile(userId: string) {
     throw new NotFoundException("User not found");
   }
   return user.omitPassword();
+}
+
+/**
+ * Met à jour le profil d'un utilisateur
+ */
+public async updateUserProfile(userId: string, updateData: any) {
+  const user = await UserModel.findById(userId);
+  if (!user) {
+    throw new NotFoundException("User not found");
+  }
+
+  if (updateData.username) {
+    user.username = updateData.username;
+  }
+
+  if (updateData.email) {
+    // Vérifier si le nouvel email est déjà utilisé par un autre utilisateur
+    const existingUserWithEmail = await UserModel.findOne({ email: updateData.email });
+    if (existingUserWithEmail && existingUserWithEmail._id.toString() !== userId) {
+      throw new BadRequestException("Email already in use");
+    }
+    user.email = updateData.email;
+    user.isEmailVerified = false; // L'email doit être re-vérifié
+    user.emailVerifiedAt = undefined;
+    // TODO: Envoyer un nouvel email de vérification
+  }
+
+  if (updateData.password && updateData.oldPassword) {
+    const isPasswordValid = await user.comparePassword(updateData.oldPassword);
+    if (!isPasswordValid) {
+      throw new BadRequestException("Invalid old password");
+    }
+    user.password = updateData.password; // Le middleware du modèle hachera le nouveau mot de passe
+  }
+
+  await user.save();
+  return user.omitPassword();
+}
+
+/**
+ * Supprime le compte d'un utilisateur
+ */
+public async deleteUserAccount(userId: string) {
+  const user = await UserModel.findByIdAndDelete(userId);
+  if (!user) {
+    throw new NotFoundException("User not found");
+  }
+
+  // Supprimer toutes les sessions et codes de vérification associés à l'utilisateur
+  await SessionModel.deleteMany({ userId });
+  await VerificationCodeModel.deleteMany({ userId });
+
+  return { success: true };
 }
 
 }
