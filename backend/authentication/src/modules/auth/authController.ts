@@ -1,11 +1,9 @@
 import { asyncHandler } from "../../middlewares/asyncHandler";
-import catchErrors from "../../common/utils/catchErrors";
 import { BAD_REQUEST, CREATED, OK, UNAUTHORIZED } from "../../common/constants/http";
-import { forgotPasswordSchema, loginSchema, registerSchema, resetPasswordSchema, verificationEmailSchema } from "../../common/validators/authValidator";
+import { forgotPasswordSchema, loginSchema, registerSchema, resetPasswordSchema, updateProfileSchema, verificationEmailSchema } from "../../common/validators/authValidator";
 import {  clearAuthenticationCookies, getAccessTokenCookieOptions, getRefreshTokenCookieOptions, setAuthenticationCookies } from "../../common/utils/cookies";
 import appAssert from "../../common/utils/appAssert";
 import Audience from "../../common/constants/audience";
-import { authService } from "./authModule";
 import { AuthService } from "./authService";
 import { createUserSession } from "../../common/utils/session";
 
@@ -20,16 +18,17 @@ export class AuthController {
 /**
  * Création de compte utilisateur
  */
-public  registerHandler = asyncHandler(async (req, res): Promise<any> => {
+public registerHandler = asyncHandler(async (req, res): Promise<any> => {
   // Validate request
   const body = registerSchema.parse({
     ...req.body,
     userAgent: req.headers["user-agent"],
     role: req.body.role as Audience || "user",
+    ipAddress: req.ip || req.connection.remoteAddress || '127.0.0.1',
   });
 
  // Call the register method from AuthService
- const { user } = await authService.createAccount(body);
+ const { user } = await this.AuthService.createAccount(body);
 
  // Send response
  return res.status(CREATED).json({
@@ -40,7 +39,7 @@ public  registerHandler = asyncHandler(async (req, res): Promise<any> => {
 /**
  * Authentification email/mot de passe classique
  */
-public  loginHandler = asyncHandler(async (req , res): Promise<any>  => {
+public loginHandler = asyncHandler(async (req, res): Promise<any> => {
   const userAgent = req.headers["user-agent"];
   
   // Récupérer l'IP du client
@@ -51,9 +50,8 @@ public  loginHandler = asyncHandler(async (req , res): Promise<any>  => {
     userAgent,
   });
 
-
   const { user, accessToken, refreshToken, mfaRequired } = 
-   await authService.loginUser(body);
+   await this.AuthService.loginUser(body);
 
   if (mfaRequired) {
       return res.status(OK).json({
@@ -93,7 +91,7 @@ public refreshTokenHandler = asyncHandler(async (req, res): Promise<any> => {
   appAssert(refreshToken, UNAUTHORIZED, "Missing refresh token");
 
   const { accessToken, newRefreshToken } = 
-  await authService.refreshToken(refreshToken);
+  await this.AuthService.refreshToken(refreshToken);
 
   // Mettre à jour le refreshToken uniquement s'il a été renouvelé
   if (newRefreshToken) {
@@ -111,7 +109,7 @@ public refreshTokenHandler = asyncHandler(async (req, res): Promise<any> => {
 /**
  * Déconnexion utilisateur
  */
- public  logoutHandler = asyncHandler(async (req, res): Promise<any> => {
+ public logoutHandler = asyncHandler(async (req, res): Promise<any> => {
   // Le middleware authenticateJWT a déjà vérifié le token et ajouté sessionId à req
   const sessionId = req.sessionId;
   
@@ -122,7 +120,7 @@ public refreshTokenHandler = asyncHandler(async (req, res): Promise<any> => {
   }
 
       // Déconnexion au niveau du service d'authentification
-    await authService.logoutUser(sessionId);
+    await this.AuthService.logoutUser(sessionId);
     
   // Supprimer les cookies d'authentification et retourner une réponse
     return clearAuthenticationCookies(res).status(OK).json({
@@ -133,18 +131,18 @@ public refreshTokenHandler = asyncHandler(async (req, res): Promise<any> => {
 /**
  * Vérification d'email
  */
-public  verifyEmailHandler = asyncHandler(async (req, res) : Promise<any> => {
+public verifyEmailHandler = asyncHandler(async (req, res): Promise<any> => {
   const { code } = verificationEmailSchema.parse(req.body);
   
   // Validation supplémentaire du code
-   if (!code|| code.trim().length === 0) {
+   if (!code || code.trim().length === 0) {
      return res.status(BAD_REQUEST).json({
       success: false,
        message: "Verification code is required",
      });
    }
 
-   const result = await authService.verifyEmail(code);
+   const result = await this.AuthService.verifyEmail(code);
 
   return res.status(OK).json({
     success: result.success,
@@ -159,10 +157,10 @@ public  verifyEmailHandler = asyncHandler(async (req, res) : Promise<any> => {
  * forget  password
  */
 public forgotPasswordHandler = asyncHandler(async (req, res): Promise<any> => {
-  const {email}= forgotPasswordSchema.parse(req.body);
+  const { email }= forgotPasswordSchema.parse(req.body);
   
   // Appeler le service pour envoyer un email de réinitialisation
-  await authService.forgotPassword(email);
+  await this.AuthService.forgotPassword(email);
 
   // Retourner une réponse de succès
   return res.status(OK).json({
@@ -174,11 +172,11 @@ public forgotPasswordHandler = asyncHandler(async (req, res): Promise<any> => {
   /**
  * reset password
  */ 
-public  ResetPasswordHandler = asyncHandler(async (req, res): Promise<any> => {
+public ResetPasswordHandler = asyncHandler(async (req, res): Promise<any> => {
   const body = resetPasswordSchema.parse(req.body);
   
   // Appeler le service pour envoyer un email de réinitialisation
- await authService.resePassword(body);
+ await this.AuthService.resetPassword(body);
 
     // Supprimer les cookies d'authentification et retourner une réponse
   return clearAuthenticationCookies(res).status(OK).json({
@@ -193,11 +191,42 @@ public  getProfileHandler = asyncHandler(async (req, res): Promise<any> => {
   
   appAssert(userId, UNAUTHORIZED, "User not authenticated");
 
-  // const user = await authService.getUserProfile(userId);
+  const user = await this.AuthService.getUserProfile(userId);
 
-  // return res.status(OK).json({
-  //   message: "Profile retrieved successfully",
-  //   data: user,
-  // });
+  return res.status(OK).json({  
+    message: "Profile retrieved successfully",
+    data: user,
+  });
+});
+
+/**
+ * Mettre à jour le profil utilisateur
+ */
+public updateProfileHandler = asyncHandler(async (req, res): Promise<any> => {
+  const userId = req.userId; // Assuming this is set by auth middleware
+  appAssert(userId, UNAUTHORIZED, "User not authenticated");
+
+  const body = updateProfileSchema.parse(req.body);
+
+  const updatedUser = await this.AuthService.updateUserProfile(userId, body);
+
+  return res.status(OK).json({
+    message: "Profile updated successfully",
+    data: updatedUser,
+  });
+});
+
+/**
+ * Supprimer le compte utilisateur
+ */
+public  deleteAccountHandler = asyncHandler(async (req, res): Promise<any> => {
+  const userId = req.userId; // Assuming this is set by auth middleware
+  appAssert(userId, UNAUTHORIZED, "User not authenticated");
+
+  await this.AuthService.deleteUserAccount(userId);
+
+  return clearAuthenticationCookies(res).status(OK).json({
+    message: "Account deleted successfully",
+  });
 });
 }

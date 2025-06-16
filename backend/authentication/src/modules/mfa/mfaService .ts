@@ -5,7 +5,8 @@ import { BadRequestException, NotFoundException, UnauthorizedException } from ".
 import UserModel, { UserDocument } from "../../models/userModel";
 import SessionModel from "../../models/sessionModel";
 import { refreshTokenSignOptions, signToken } from "../../common/utils/jwt";
-
+import jwt from 'jsonwebtoken';
+import { JWT_SECRET } from "../../common/constants/env";
 
 export class MfaService {
   public async generateMFASetup(req: Request) {
@@ -76,23 +77,6 @@ export class MfaService {
     if (!storedSecretKey) {
       throw new BadRequestException("MFA setup not found. Please generate QR code first.");
     }
-  
-  // Debug amélioré
-  console.log('[MFA Debug]', {
-    userId: user._id,
-    codeReceived: code,
-    secretLength: storedSecretKey.length,
-    timestamp: Math.floor(Date.now() / 1000),
-    timeOffset: new Date().getTimezoneOffset()
-  });
-
-  // Génération d'un code valide pour debug
-  const debugCode = speakeasy.totp({
-    secret: storedSecretKey,
-    encoding: 'base32',
-    time: Math.floor(Date.now() / 1000)
-  });
-  console.log('[MFA Debug] Code qui devrait fonctionner:', debugCode);
 
     const isValid = speakeasy.totp.verify({
       secret: storedSecretKey, 
@@ -101,8 +85,6 @@ export class MfaService {
       window: 6,
       time: Math.floor(Date.now() / 1000)
     });
-
-    console.log('TOTP verification result:', isValid);
 
     if (!isValid) {
       throw new BadRequestException("Invalid MFA code. Please try again.");
@@ -118,7 +100,7 @@ export class MfaService {
   
     user.userPreferences.enable2FA = true;
     await user.save();
-  
+
     return {
       message: "MFA setup completed successfully",
       userPreferences: {

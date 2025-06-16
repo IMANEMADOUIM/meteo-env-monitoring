@@ -15,13 +15,28 @@ import { sendEmail } from "../../mailers/mailer";
 import { passwordResetTemplate, verifyEmailTemplate } from "../../mailers/templates/templates";
 import { logger } from "../../common/utils/logger";
 import { hashValue } from "../../common/utils/bcypt";
+import { lookup } from "ip-location-api";
 
 /**
  * Crée un nouveau compte utilisateur
  */
 export class AuthService {
   public async createAccount (registerData: RegisterDto) {
-  const { email, password, username, role = Audience.User, userAgent } = registerData;
+  const { email, password, username, role = Audience.User, userAgent, ipAddress } = registerData;
+
+  let location: string | undefined;
+  if (ipAddress) {
+    try {
+      const geo = lookup(ipAddress);
+      if (geo && geo.city && geo.country_name) {
+        location = `${geo.city}, ${geo.country_name}`;
+      } else if (geo && geo.country_name) {
+        location = geo.country_name;
+      }
+    } catch (error) {
+      logger.error(`Failed to get location for IP ${ipAddress}: ${error}`);
+    }
+  }
 
   // Vérifie si le rôle est valide
   if (!Object.values(Audience).includes(role)) {
@@ -40,6 +55,7 @@ export class AuthService {
     email,
     password, // Sera haché par le middleware du modèle
     role,
+    location,
   });
 
   const userId = user._id;
@@ -378,7 +394,7 @@ public async forgotPassword(email: string) {
   };
 }
 
-public async resePassword({ password, verificationCode }: resetPasswordDto) {
+public async resetPassword({ password, verificationCode }: resetPasswordDto) {
   const validCode = await VerificationCodeModel.findOne({
     code: verificationCode,
     type: VerificationCodeType.PASSWORD_RESET,
@@ -408,6 +424,17 @@ public async resePassword({ password, verificationCode }: resetPasswordDto) {
   return {
     user: updatedUser,
   };
+}
+
+/**
+ * Récupère le profil d'un utilisateur par son ID
+ */
+public async getUserProfile(userId: string) {
+  const user = await UserModel.findById(userId);
+  if (!user) {
+    throw new NotFoundException("User not found");
+  }
+  return user.omitPassword();
 }
 
 }

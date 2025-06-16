@@ -216,6 +216,7 @@ export class AdminService {
           email: 1,
           role: 1,
           isEmailVerified: 1,
+          location : 1,
           userPreferences: 1,
           hasActiveSession: 1,
           sessions: { $size: '$sessions' },

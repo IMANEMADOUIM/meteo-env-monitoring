@@ -21,6 +21,8 @@ export interface UserPreferences {
   role : Audience ;
   isEmailVerified: boolean;
   userPreferences?: UserPreferences;
+  location?: string;
+  emailVerifiedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
   __v?: number;
@@ -89,6 +91,11 @@ const userSchema = new mongoose.Schema<UserDocument>(
       default: false,
     },
 
+    location: {
+      type: String,
+      required: false,
+    },
+    
   },
   {
     timestamps: true, // Pour ajouter automatiquement `createdAt` et `updatedAt`

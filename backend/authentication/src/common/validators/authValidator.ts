@@ -41,4 +41,19 @@ export const loginSchema = z.object({
    email: emailSchema,
  });
  
+ // Schéma pour la mise à jour du profile 
 
+ export const updateProfileSchema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters long").max(30, "Username cannot exceed 30 characters").optional(),
+  email: emailSchema.optional(),
+  password: passwordSchema.optional(),
+  oldPassword: z.string().optional(),
+}).refine(data => {
+  if (data.password && !data.oldPassword) {
+    return false; // Old password is required if new password is provided
+  }
+  return true;
+}, {
+  message: "Old password is required to update password",
+  path: ["oldPassword"],
+});
