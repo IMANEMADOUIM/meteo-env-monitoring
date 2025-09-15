@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  mqtt-broker:
+    image: eclipse-mosquitto:2
+    container_name: mqtt-broker
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+  broker_client:
+    build: .
+    container_name: broker_client
+    depends_on:
+      - mqtt-broker
+    environment:
+      - MQTT_HOST=mqtt-broker
+    ports:
+      - "5050:5050"
+    command: ["python", "broker_client.py"]
+
+  simulator:
+    build: .
+    container_name: simulator
+    depends_on:
+      - mqtt-broker
+    environment:
+      - MQTT_HOST=mqtt-broker
+    command: ["python", "simulator.py"]
