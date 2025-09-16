@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+  backend:
+    build: ./backend
+    container_name: backend_service
+    ports:
+      - "8000:8000"
+    environment:
+      - NODE_ENV=production
+      - MONGO_URI=mongodb://mongo:27017/enviroWatch_db
+    depends_on:
+      - mongo
+
+  frontend:
+    build: ./frontend
+    container_name: frontend_service
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+  mongo:
+    image: mongo:7
+    container_name: mongo_service
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=enviroWatch_db
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:

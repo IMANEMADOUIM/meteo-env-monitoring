@@ -1,0 +1,19 @@
+# Node modules locaux
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Environnement local
+.env
+.env.local
+
+# Logs
+logs
+*.log
+
+# Cache
+dist
+coverage
+.idea
+.vscode
+*.tsbuildinfo
