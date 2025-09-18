@@ -86,7 +86,10 @@ export class AdminController {
       role: z.enum([Audience.Admin, Audience.User]).optional(),
       emailNotification: z.boolean().optional(),
       isEmailVerified: z.boolean().optional(),
-      enable2FA: z.boolean().optional()
+      enable2FA: z.boolean().optional(),
+      isActive: z.boolean().optional(),
+      isLocked: z.boolean().optional(),
+      credentialsExpired: z.boolean().optional()
     });
 
     const updateData = updateUserSchema.parse(req.body);

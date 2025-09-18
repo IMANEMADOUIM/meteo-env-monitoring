@@ -21,7 +21,7 @@ declare global {
 
     interface Request {
       sessionId?: SessionDocument["_id"];
-      user?: User;
+      user?: User & { id: string };
     }
   }
 }

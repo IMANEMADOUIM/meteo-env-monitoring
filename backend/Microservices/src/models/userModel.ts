@@ -13,13 +13,16 @@ export interface UserPreferences {
 
 // Interface pour typer un document utilisateur
  export interface UserDocument extends mongoose.Document {
-  _id: mongoose.Types.ObjectId ;
+  userId: mongoose.Types.ObjectId ;
   id?: never;
   username: string;
   email: string;
   password: string;
   role : Audience ;
   isEmailVerified: boolean;
+  isActive?: boolean;
+  isLocked?: boolean;
+  credentialsExpired?: boolean;
   userPreferences?: UserPreferences;
   emailVerifiedAt?: Date;
   createdAt: Date;
@@ -89,7 +92,19 @@ const userSchema = new mongoose.Schema<UserDocument>(
       type: Boolean,
       default: false,
     },
-
+    
+    isActive: {
+      type: Boolean,
+      default: true
+    },
+    isLocked: {
+      type: Boolean,
+      default: false
+    },
+    credentialsExpired: {
+      type: Boolean,
+      default: false
+    },
   },
   {
     timestamps: true, // Pour ajouter automatiquement `createdAt` et `updatedAt`

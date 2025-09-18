@@ -19,3 +19,5 @@ export const JWT_REFRESH_SECRET = getEnv("JWT_REFRESH_SECRET");
 export const JWT_REFRESH_EXPIRES_IN= getEnv("JWT_REFRESH_EXPIRES_IN","30d");
 export const RESEND_API_KEY = getEnv("RESEND_API_KEY");
 export const MAILER_SENDER = getEnv("MAILER_SENDER");
+export const FLASK_METRICS_URL = process.env.FLASK_METRICS_URL || "http://localhost:5050/metrics";
+export const POLL_INTERVAL_MS = Number(process.env.POLL_INTERVAL_MS) || 7000;

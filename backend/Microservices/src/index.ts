@@ -2,6 +2,7 @@ import 'dotenv/config';
 import app from './app';
 import connectDB from './config/db';
 import { NODE_ENV, PORT } from './common/constants/env';
+import { startPoller } from './modules/sensors/sensorsService';
 
 const startServer = async () => {
   try {
@@ -13,6 +14,9 @@ const startServer = async () => {
     app.listen(PORT, () => {
       console.log(` Server listening on port ${PORT} in ${NODE_ENV} environment.`);
     });
+
+     // start the poller AFTER DB connected
+     startPoller();
   } catch (error) {
     console.error(' Error starting server:', error);
     process.exit(1); // Arrête le processus en cas d'erreur critique

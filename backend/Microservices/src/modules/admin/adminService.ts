@@ -14,6 +14,9 @@ interface UserUpdate {
   isEmailVerified?: boolean;
   emailNotification?: boolean;
   enable2FA?: boolean;
+  isActive?: boolean; 
+  isLocked?: boolean;
+  credentialsExpired?: boolean;
 }
 
 export class AdminService {

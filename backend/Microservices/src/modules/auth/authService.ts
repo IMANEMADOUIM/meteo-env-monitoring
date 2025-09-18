@@ -135,6 +135,18 @@ export class AuthService {
       );
   }
 
+  if (!user.isActive) {
+    throw new Error("Account disabled. Please contact support.");
+  }
+
+  if (user.isLocked) {
+    throw new Error("Account locked. Please try again later or contact support.");
+  }
+
+  if (user.credentialsExpired) {
+    throw new Error("Credentials expired. Please reset your password.");
+  }
+
     // Check if the user enable 2fa retuen user= null
   if (user.userPreferences?.enable2FA) {
     logger.info(`2FA required for user ID: ${user._id}`);
@@ -453,7 +465,7 @@ public async updateUserProfile(userId: string, updateData: any) {
   if (updateData.email) {
     // Vérifier si le nouvel email est déjà utilisé par un autre utilisateur
     const existingUserWithEmail = await UserModel.findOne({ email: updateData.email });
-    if (existingUserWithEmail && existingUserWithEmail._id.toString() !== userId) {
+    if (existingUserWithEmail && existingUserWithEmail.id.toString() !== userId) {
       throw new BadRequestException("Email already in use");
     }
     user.email = updateData.email;
